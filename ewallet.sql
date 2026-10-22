@@ -1,46 +1,62 @@
 CREATE DATABASE ewallet_db;
 
 create table users (
-    id int generated always as identity,
-    name VARCHAR(150) not null,
-    NIK VARCHAR(100) not null UNIQUE,
+    id int generated always as identity primary key,
+    full_name VARCHAR(255) not null,
+    username VARCHAR(255) not null UNIQUE,
+    password_hash VARCHAR(250) not null,
     email VARCHAR(100) not null, 
     phone VARCHAR(50) not null,
-    address VARCHAR(200),
-    register_date TIMESTAMP default now(),
+    photo TEXT,
     created_at TIMESTAMP default now(),
-    id_account int not null,
+    updated_at timestamp DEFAULT NOW()
+);
 
-    FOREIGN KEY (id_account) REFERENCES account(id)
-)
-
-
-create table accounts {
-    id int generated always as identity,
-    current_amount int not null check(current_amount > 0),
-    name VARCHAR(150) not null,
+create table accounts (
+    id int generated always as identity PRIMARY KEY,
+    amount int not null check(amount > 0),
+    PIN VARCHAR(50) NOT NULL DEFAULT '123456',
     account_number VARCHAR(100) not null,
     created_at TIMESTAMP default now(),
     updated_at TIMESTAMP default now(),
-    id_user int not null,
+);
 
-    FOREIGN KEY (id_user) REFERENCES users(id)
-}
+create table contacts(
+    id int generated ALWAYS AS IDENTITY PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    account_number VARCHAR(250) NOT NULL,
+    isFavorite BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP default now(),
+    updated_at TIMESTAMP default now(),    
+);
 
-create table transactions {
-    id int generated always as identity,
+
+
+create table transactions (
+    id int generated always as identity PRIMARY KEY,
+    contact_id int REFERENCES contacts(id),
+    purpose VARCHAR DEFAULT 'transfer',
     description VARCHAR(150),
     status VARCHAR(100) not null,
-    account_number VARCHAR(100) not NULL,
-    total_amount int check(total_amount>0),
     created_at TIMESTAMP default now(),
-    transaction_date TIMESTAMP default now(),
-    id_account int not null,
-    id_user int not null,
+    
+    -- * amount baiknya cek apa engga?
+    amount int check(total_amount>0),
+    -- * ==========
+);
 
-    FOREIGN KEY (id_user) REFERENCES users(id),
-    FOREIGN KEY (id_account) REFERENCES accounts(id)
-}
+CREATE TABLE account_category(
+    id int generated ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE transaction_category(
+    id int generated ALWAYS as IDENTITY PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT now() 
+);
+
 
 INSERT INTO users (name, nik, email, phone, address) 
 VALUES
