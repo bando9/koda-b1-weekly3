@@ -147,6 +147,17 @@ INSERT INTO mutations (description, amount, type, account_id, transaction_id) VA
 
 -- * =============================
 
+-- INDEX
+
+create index idx_mutations_account_id on mutations(account_id);
+create index idx_mutations_account_type on mutations(account_id,type);
+create index idx_mutations_transaction_id on mutations(transaction_id);
+
+create index idx_transaction_created_at on transactions(created_at desc);
+
+
+-- * =============================
+
 -- TODO: Login
 SELECT full_name, email, photo, phone
 from users
