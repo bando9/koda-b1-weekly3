@@ -150,14 +150,13 @@ INSERT INTO mutations (description, amount, type, account_id, transaction_id) VA
 -- TODO: Login
 SELECT full_name, email, photo, phone
 from users
-where username = 'bando' and password_hash = 'hash_pw_1'
-returning 'Kamu berhasil login!' as status;
+where username = 'bando' and password_hash = 'hash_pw_1';
 
 -- TODO: register
-select full_name from users
+
 INSERT INTO users (username, password_hash, full_name, email, phone, photo) VALUES
-('udinsedunia', 'hash_pw_11', 'Muhammad Syarifuddin', 'udin@email.com', '+628902349', 'url_photo_udin')
-returning 'Kamu berhasil register' as status;
+('muhudin', 'hash_pw_11', 'Muhammad Syarifuddin Yanto', 'udinlagi@email.com', '+628902350', 'url_photo_udin')
+RETURNING id;
 
 
 -- TODO: get user login (username, email, photo)
@@ -165,19 +164,20 @@ select username, email, photo
 from users where username = 'budi' and password_hash ='hash_pw_6';
 
 -- TODO: Get/Check user PIN
-select u.full_name, u.email, ac.pin_hash
+select u.id as user_id, u.full_name, ac.account_number, ac.pin_hash
 from users u
 join accounts ac on u.id = ac.user_id
-where ac.pin_hash = 'hash_pin_1';
+where u.id = 5;
 
 -- TODO: Get transaction history
 
-select u.full_name, tx.created_at, m.amount, m.type 
+select u.full_name, tx.reference_id, tx.created_at, m.amount, m.type 
 from transactions tx
 join mutations m on tx.id = m.transaction_id
 join accounts ac on ac.id = m.account_id
 join users u on u.id = ac.user_id
-ORDER BY u.full_name asc
+where ac.user_id = 2
+ORDER BY tx.created_at desc;
 
 
 -- TODO:  Get user history with option (income/expense, date range)
@@ -187,18 +187,21 @@ from transactions tx
 join mutations m on tx.id = m.transaction_id
 join accounts ac on ac.id = m.account_id
 join users u on u.id = ac.user_id
-where username = 'bando' and password_hash ='hash_pw_1'
-group by u.full_name, tx.created_at, m.amount, m.type 
-having m.type = 'income' and (tx.created_at between '01-10-2026' and '30-10-2026');
+where user_id = 1 and m.type = 'income' and (tx.created_at between '01-10-2026' and '30-10-2026')
+ORDER BY tx.created_at DESC;
+
+
 
 -- TODO: Get user account information (balance, income, expense)
 
-select u.full_name, sum(m.amount), m.type
+select u.full_name, ac.account_number, ac.balance, 
+    sum(case when m.type = 'income' THEN m.amount else 0 end) as total_income,
+    sum(case when m.type = 'expense' THEN m.amount else 0 end) as total_expense
 from users u 
 join accounts ac on ac.user_id = u.id
 join mutations m on m.account_id = ac.id
-GROUP BY u.full_name, m.type 
-order by u.full_name asc;
+where ac.user_id = 1
+GROUP BY u.full_name, ac.account_number, ac.balance;
 
 
 -- TODO: Find receiver with pagination
@@ -209,11 +212,10 @@ join mutations m on m.transaction_id = tx.id
 join accounts ac on ac.id = m.account_id
 join users u on u.id = ac.user_id
 where m.type = 'income'
-limit 10
-offset 10
+limit 3
+offset 0
 
-
--- TODO:  Create transaction/topup 
+-- TODO:  Create transaction/topup
 
 INSERT INTO transactions (reference_id) values ('TRX-20261025-020') returning id;
 
@@ -229,7 +231,7 @@ where transaction_id = 22;
 -- TODO:  Get user profile (photo, full name, phone, email) 
 
 SELECT photo, full_name, phone, email
-from users where 
+from users where id = 1; 
 
 
 -- TODO: Change PIN
@@ -244,12 +246,12 @@ returning 'berhasil update PIN hash' as status;
 update users 
 set password_hash = 'password_hash_baru'
 where id = 1
-
-select full_name, password_hash, username from users where id = 1
+returning 'berhasil update password hash' as status;
 
 
 -- TODO: Change user profile
+
 update users
 set photo = 'link_url_baru'
 where id = 1 
-returning 'berhasil update photo' as status
+returning photo;
